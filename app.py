@@ -28,47 +28,30 @@ st.set_page_config(page_title="Agri-Market Predictor", page_icon="🌱", layout=
 st.markdown("""
 <style>
 div[data-testid="stMetric"] {
-    border: 1px solid #e6e6e6;
-    padding: 15px 20px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
-}
-div[data-testid="stMetricValue"] {
-    color: #2e7b32;
-}
-.stTabs [data-baseweb="tab-list"] {
-    gap: 24px;
-}
-.stTabs [data-baseweb="tab"] {
-    height: 50px;
-    white-space: pre-wrap;
-    border-radius: 4px 4px 0px 0px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-.stMetric:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(46, 204, 113, 0.1);
-    border: 1px solid #2ECC71;
-    transition: all 0.3s ease-in-out;
-}
-
-</style>
-""", unsafe_allow_html=True)
-st.markdown("""
-<style>
-div[data-testid="stMetric"] {
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 20px;
+    border: 1px solid rgba(46, 123, 50, 0.2);
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     transition: all 0.3s ease;
 }
 div[data-testid="stMetric"]:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #2e7b32;
-    transform: translateY(-5px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.15);
+    border-color: #2e7b32;
+}
+div[data-testid="stMetricValue"] {
+    color: #2e7b32;
+    font-weight: 700;
+}
+.stTabs [data-baseweb="tab-list"] {
+    gap: 16px;
+}
+.stTabs [data-baseweb="tab"] {
+    height: 48px;
+    font-weight: 600;
+    border-radius: 8px 8px 0px 0px;
+    padding: 8px 16px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -113,47 +96,56 @@ def clean_for_prolog(text):
     base = text.lower().split(',')[0].strip().replace(' ', '_')
     return re.sub(r'[^a-z0-9_]', '', base)
 
+major_crops_kb = {
+    'wheat': {'shelf': 'long', 'sow': 'rabi_nov_dec', 'harvest': 'apr_may', 'water': 'moderate_4_to_5_irrigations', 'fert': 'dap_and_urea', 'disease': 'rust_fungus'},
+    'rice': {'shelf': 'long', 'sow': 'kharif_may_jun', 'harvest': 'oct_nov', 'water': 'very_high_flooded_fields', 'fert': 'zinc_and_nitrogen', 'disease': 'stem_borer'},
+    'cotton': {'shelf': 'long', 'sow': 'kharif_apr_may', 'harvest': 'aug_oct', 'water': 'moderate_crucial_at_flowering', 'fert': 'phosphorus_and_potassium', 'disease': 'whitefly_and_pink_bollworm'},
+    'sugarcane': {'shelf': 'long', 'sow': 'spring_feb_mar', 'harvest': 'nov_mar', 'water': 'high_frequent_irrigation', 'fert': 'heavy_nitrogen', 'disease': 'red_rot'},
+    'maize': {'shelf': 'medium', 'sow': 'spring_or_kharif', 'harvest': 'jun_or_nov', 'water': 'moderate_sensitive_to_drought', 'fert': 'nitrogen_rich', 'disease': 'shoot_fly'},
+    'apples': {'shelf': 'long', 'sow': 'spring_feb_mar', 'harvest': 'aug_oct', 'water': 'moderate_drip_preferred', 'fert': 'npk_mix', 'disease': 'apple_scab'},
+    'bananas': {'shelf': 'short', 'sow': 'spring_or_autumn', 'harvest': 'all_year', 'water': 'high_needs_moist_soil', 'fert': 'potassium_rich', 'disease': 'bunchy_top_virus'},
+    'onions': {'shelf': 'medium', 'sow': 'rabi_oct_nov', 'harvest': 'apr_may', 'water': 'light_but_frequent', 'fert': 'sulfur_and_phosphorus', 'disease': 'purple_blotch'},
+    'tomatoes': {'shelf': 'short', 'sow': 'spring_or_autumn', 'harvest': 'multiple_seasons', 'water': 'moderate_avoid_leaf_wetness', 'fert': 'calcium_and_potassium', 'disease': 'blight_and_leaf_curl'},
+    'potatoes': {'shelf': 'medium', 'sow': 'autumn_sep_oct', 'harvest': 'jan_feb', 'water': 'moderate_consistent_moisture', 'fert': 'phosphorus_heavy', 'disease': 'late_blight'},
+    'almonds': {'shelf': 'long', 'sow': 'winter_dec_jan', 'harvest': 'aug_sep', 'water': 'low_drought_tolerant', 'fert': 'nitrogen_and_zinc', 'disease': 'hull_rot'},
+    'cabbages': {'shelf': 'short', 'sow': 'winter_oct_nov', 'harvest': 'jan_mar', 'water': 'high_consistent_moisture', 'fert': 'nitrogen_rich', 'disease': 'diamondback_moth'},
+    'apricots': {'shelf': 'short', 'sow': 'winter_dec_jan', 'harvest': 'may_jul', 'water': 'low_well_drained_soil', 'fert': 'nitrogen_in_spring', 'disease': 'brown_rot'},
+    'barley': {'shelf': 'long', 'sow': 'rabi_oct_nov', 'harvest': 'apr_may', 'water': 'low_drought_resistant', 'fert': 'moderate_nitrogen', 'disease': 'powdery_mildew'},
+    'beans': {'shelf': 'long', 'sow': 'spring_feb_mar', 'harvest': 'may_jun', 'water': 'moderate_at_pod_formation', 'fert': 'low_nitrogen_fixes_own', 'disease': 'anthracnose'},
+    'carrots_and_turnips': {'shelf': 'medium', 'sow': 'autumn_sep_oct', 'harvest': 'dec_feb', 'water': 'moderate_deep_watering', 'fert': 'low_nitrogen_high_potassium', 'disease': 'root_knot_nematodes'}
+}
+
+def get_crop_kb(name):
+    clean = clean_for_prolog(name)
+    if clean in major_crops_kb:
+        return major_crops_kb[clean]
+    for k, v in major_crops_kb.items():
+        if k in clean or clean in k:
+            return v
+    return {
+        'shelf': 'medium',
+        'sow': 'varies_by_region',
+        'harvest': 'depends_on_sowing_time',
+        'water': 'moderate_depends_on_soil',
+        'fert': 'standard_npk',
+        'disease': 'general_pests'
+    }
+
 PROLOG_READY = False
 try:
     from pyswip import Prolog
     prolog = Prolog()
-    
-    major_crops_kb = {
-        'wheat': {'shelf': 'long', 'sow': 'rabi_nov_dec', 'harvest': 'apr_may', 'water': 'moderate_4_to_5_irrigations', 'fert': 'dap_and_urea', 'disease': 'rust_fungus'},
-        'rice': {'shelf': 'long', 'sow': 'kharif_may_jun', 'harvest': 'oct_nov', 'water': 'very_high_flooded_fields', 'fert': 'zinc_and_nitrogen', 'disease': 'stem_borer'},
-        'cotton': {'shelf': 'long', 'sow': 'kharif_apr_may', 'harvest': 'aug_oct', 'water': 'moderate_crucial_at_flowering', 'fert': 'phosphorus_and_potassium', 'disease': 'whitefly_and_pink_bollworm'},
-        'sugarcane': {'shelf': 'long', 'sow': 'spring_feb_mar', 'harvest': 'nov_mar', 'water': 'high_frequent_irrigation', 'fert': 'heavy_nitrogen', 'disease': 'red_rot'},
-        'maize': {'shelf': 'medium', 'sow': 'spring_or_kharif', 'harvest': 'jun_or_nov', 'water': 'moderate_sensitive_to_drought', 'fert': 'nitrogen_rich', 'disease': 'shoot_fly'},
-        'apples': {'shelf': 'long', 'sow': 'spring_feb_mar', 'harvest': 'aug_oct', 'water': 'moderate_drip_preferred', 'fert': 'npk_mix', 'disease': 'apple_scab'},
-        'bananas': {'shelf': 'short', 'sow': 'spring_or_autumn', 'harvest': 'all_year', 'water': 'high_needs_moist_soil', 'fert': 'potassium_rich', 'disease': 'bunchy_top_virus'},
-        'onions': {'shelf': 'medium', 'sow': 'rabi_oct_nov', 'harvest': 'apr_may', 'water': 'light_but_frequent', 'fert': 'sulfur_and_phosphorus', 'disease': 'purple_blotch'},
-        'tomatoes': {'shelf': 'short', 'sow': 'spring_or_autumn', 'harvest': 'multiple_seasons', 'water': 'moderate_avoid_leaf_wetness', 'fert': 'calcium_and_potassium', 'disease': 'blight_and_leaf_curl'},
-        'potatoes': {'shelf': 'medium', 'sow': 'autumn_sep_oct', 'harvest': 'jan_feb', 'water': 'moderate_consistent_moisture', 'fert': 'phosphorus_heavy', 'disease': 'late_blight'},
-        'almonds': {'shelf': 'long', 'sow': 'winter_dec_jan', 'harvest': 'aug_sep', 'water': 'low_drought_tolerant', 'fert': 'nitrogen_and_zinc', 'disease': 'hull_rot'},
-        'cabbages': {'shelf': 'short', 'sow': 'winter_oct_nov', 'harvest': 'jan_mar', 'water': 'high_consistent_moisture', 'fert': 'nitrogen_rich', 'disease': 'diamondback_moth'},
-        'apricots': {'shelf': 'short', 'sow': 'winter_dec_jan', 'harvest': 'may_jul', 'water': 'low_well_drained_soil', 'fert': 'nitrogen_in_spring', 'disease': 'brown_rot'},
-        'barley': {'shelf': 'long', 'sow': 'rabi_oct_nov', 'harvest': 'apr_may', 'water': 'low_drought_resistant', 'fert': 'moderate_nitrogen', 'disease': 'powdery_mildew'},
-        'beans': {'shelf': 'long', 'sow': 'spring_feb_mar', 'harvest': 'may_jun', 'water': 'moderate_at_pod_formation', 'fert': 'low_nitrogen_fixes_own', 'disease': 'anthracnose'},
-        'carrots_and_turnips': {'shelf': 'medium', 'sow': 'autumn_sep_oct', 'harvest': 'dec_feb', 'water': 'moderate_deep_watering', 'fert': 'low_nitrogen_high_potassium', 'disease': 'root_knot_nematodes'}
-    }
 
     unique_crops = df['Item'].unique()
     for item in unique_crops:
         safe_name = clean_for_prolog(item)
-        if safe_name in major_crops_kb:
-            shelf = major_crops_kb[safe_name]['shelf']
-            sow = major_crops_kb[safe_name]['sow']
-            harvest = major_crops_kb[safe_name]['harvest']
-            water = major_crops_kb[safe_name]['water']
-            fert = major_crops_kb[safe_name]['fert']
-            disease = major_crops_kb[safe_name]['disease']
-        else:
-            shelf = 'medium'
-            sow = 'varies_by_region'
-            harvest = 'depends_on_sowing_time'
-            water = 'moderate_depends_on_soil'
-            fert = 'standard_npk'
-            disease = 'general_pests'
+        crop_info = get_crop_kb(safe_name)
+        shelf = crop_info['shelf']
+        sow = crop_info['sow']
+        harvest = crop_info['harvest']
+        water = crop_info['water']
+        fert = crop_info['fert']
+        disease = crop_info['disease']
             
         prolog.assertz(f"shelf_life({safe_name}, {shelf})")
         prolog.assertz(f"sowing_season({safe_name}, {sow})")
@@ -177,7 +169,7 @@ try:
 except ImportError:
     pass
 except Exception as e:
-    st.sidebar.error(f"Prolog Warning: {e}")
+    st.sidebar.warning("Running AI Advisor via built-in expert engine.")
 
 with st.sidebar:
     # 3. The Safeguard: Only show the animation if it successfully downloaded
@@ -276,8 +268,25 @@ with tab2:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    # 3. Chat input stays OUTSIDE the container loop (it will stay at the bottom)
-    if prompt := st.chat_input("Message the AI Advisor..."):
+    st.markdown("**Quick Inquiries:**")
+    prompt_cols = st.columns(4)
+    quick_choice = None
+    with prompt_cols[0]:
+        if st.button("📦 Store ya bechun?", key="btn_store"):
+            quick_choice = "Fasal store karun ya abhi bechun?"
+    with prompt_cols[1]:
+        if st.button("🌱 Sowing Season?", key="btn_sow"):
+            quick_choice = "Boai ka behtareen mausam kab hai?"
+    with prompt_cols[2]:
+        if st.button("💧 Water Needs?", key="btn_water"):
+            quick_choice = "Pani kitna dena chahiye?"
+    with prompt_cols[3]:
+        if st.button("🏛️ Subsidies?", key="btn_subsidy"):
+            quick_choice = "Hukoomat ki subsidies kya hain?"
+
+    chat_input_val = st.chat_input("Message the AI Advisor...")
+    prompt = quick_choice or chat_input_val
+    if prompt:
         # Add user message to history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
@@ -288,87 +297,101 @@ with tab2:
 
         # --- Your Processing Logic ---
         tokens = [word.lower() for word in word_tokenize(prompt)]
-        urdu_indicators = ['kya', 'hai', 'ki', 'kab', 'kaise', 'keemat', 'rakhun', 'lagaun', 'katai', 'madad', 'bhao', 'boai', 'aur', 'mein', 'ko', 'k', 'se', 'yeh', 'woh', 'khaad', 'pani', 'beemari', 'dun', 'dalun','mashwara']
+        urdu_indicators = ['kya', 'hai', 'ki', 'kab', 'kaise', 'keemat', 'rakhun', 'lagaun', 'katai', 'madad', 'bhao', 'boai', 'aur', 'mein', 'ko', 'k', 'se', 'yeh', 'woh', 'khaad', 'pani', 'beemari', 'dun', 'dalun','mashwara', 'bechun']
         is_urdu = any(word in tokens for word in urdu_indicators)
         
-        # 2. Add mashwara to intent_storage since that triggers the Prolog Advice logic
-        intent_storage = any(word in tokens for word in ['store', 'storage', 'rakhun', 'save', 'mahfooz', 'mashwara'])
-        intent_price = any(word in tokens for word in ['price', 'keemat', 'rate', 'bhao','qeemat',])
-        intent_sowing = any(word in tokens for word in ['sow', 'sowing', 'lagaun', 'boai', 'plant'])
+        # 2. Add mashwara to intent_storage since that triggers the Advice logic
+        intent_storage = any(word in tokens for word in ['store', 'storage', 'rakhun', 'save', 'mahfooz', 'mashwara', 'bechun', 'hold'])
+        intent_price = any(word in tokens for word in ['price', 'keemat', 'rate', 'bhao','qeemat', 'cost', 'forecast'])
+        intent_sowing = any(word in tokens for word in ['sow', 'sowing', 'lagaun', 'boai', 'plant', 'seed'])
         intent_harvest = any(word in tokens for word in ['harvest', 'katai', 'cut', 'picking'])
-        intent_subsidy = any(word in tokens for word in ['subsidy', 'madad', 'scheme', 'government'])
+        intent_subsidy = any(word in tokens for word in ['subsidy', 'madad', 'scheme', 'government', 'kisan', 'hukoomat'])
         intent_water = any(word in tokens for word in ['water', 'pani', 'irrigation', 'aabpashi', 'dun'])
-        intent_fert = any(word in tokens for word in ['fertilizer', 'khaad', 'urea', 'dap', 'dalun'])
-        intent_disease = any(word in tokens for word in ['disease', 'pest', 'beemari', 'keerey', 'spray', 'virus'])
+        intent_fert = any(word in tokens for word in ['fertilizer', 'khaad', 'urea', 'dap', 'dalun', 'potash'])
+        intent_disease = any(word in tokens for word in ['disease', 'pest', 'beemari', 'keerey', 'spray', 'virus', 'kungi', 'borer'])
         
         safe_crop_name = clean_for_prolog(selected_crop)
         pretty_crop_name = selected_crop.split(',')[0].title()
+        crop_kb = get_crop_kb(selected_crop)
         
         reply = ""
 
-        # Logic Branching (Prolog / ML)
+        # Logic Branching (Prolog / ML / Expert KB)
         if intent_price:
             current_price = y[-1] if len(crop_data) > 5 else 0
             if is_urdu: reply = f"**{pretty_crop_name}** ki aakhri record karda keemat **{current_price:,.2f} PKR** fi Maund thi. ML forecast ke mutabiq market ka trend **{trend_ur}** hai."
             else: reply = f"The last recorded price for **{pretty_crop_name}** was **{current_price:,.2f} PKR** per Maund. The ML forecast trend is **{trend}**."
             
         elif intent_storage:
+            should_store = False
             if PROLOG_READY:
                 prolog.retractall("price_trend(_,_)")
                 prolog.assertz(f"price_trend({safe_crop_name}, {trend})")
                 advice_query = list(prolog.query(f"advise_storage({safe_crop_name})"))
-                if advice_query: reply = "🧠 **Prolog Logic:** Keemat gir rahi hai aur iski shelf life lambi hai. Mashwara yeh hai ke fasal ko **store kar lein**." if is_urdu else "🧠 **Prolog Logic:** Price trend is falling and shelf life is long. It is advised to **store the crop**."
-                else: reply = "🧠 **Prolog Logic:** Abhi store karne ka mahswara nahi hai. Fasal bechne par ghaur karein taqay kharab na ho." if is_urdu else "🧠 **Prolog Logic:** Storage is not strictly advised right now. Consider selling to avoid spoilage."
+                should_store = bool(advice_query)
             else:
-                reply = "⚠️ **Fallback Logic:** Abhi store karne ka mahswara nahi hai." if is_urdu else "⚠️ **Fallback Logic:** Storage is not strictly advised."
+                should_store = (trend == "falling" and crop_kb['shelf'] == 'long')
+
+            if should_store:
+                reply = f"🧠 **Agronomy Advisory:** Keemat gir rahi hai aur **{pretty_crop_name}** ki shelf life lambi hai. Mashwara yeh hai ke fasal ko **store kar lein** taqay baad mein behtar rate milay." if is_urdu else f"🧠 **Agronomy Advisory:** Price trend is softening and **{pretty_crop_name}** has a durable shelf life. It is advised to **store the crop** in dry storage and sell when market supplies tighten."
+            else:
+                reply = f"🧠 **Agronomy Advisory:** Abhi lambay arsay ke liye store karna munasib nahi hai. Fasal bechne par ghaur karein taqay kharab na ho." if is_urdu else f"🧠 **Agronomy Advisory:** Long-term storage is not strictly recommended right now. Consider staged selling to capture present market value."
 
         elif intent_sowing:
+            sow_season = None
             if PROLOG_READY:
                 sow_query = list(prolog.query(f"advise_sowing({safe_crop_name}, Season)"))
                 if sow_query:
-                    season = sow_query[0]['Season'].replace('_', ' ').title()
-                    reply = f"🧠 **Prolog Knowledge Base:** **{pretty_crop_name}** ko lagane (sowing) ka behtareen mausam **{season}** hai." if is_urdu else f"🧠 **Prolog Knowledge Base:** The best sowing season for **{pretty_crop_name}** is **{season}**."
-            else: reply = "⚠️ Fallback: Sowing seasons ke liye Prolog install karein." if is_urdu else "⚠️ Fallback: Install Prolog to retrieve sowing seasons."
+                    sow_season = sow_query[0]['Season'].replace('_', ' ').title()
+            if not sow_season:
+                sow_season = crop_kb['sow'].replace('_', ' ').title()
+            reply = f"🌱 **Agronomy Advisory:** **{pretty_crop_name}** ko lagane (sowing) ka behtareen mausam **{sow_season}** hai." if is_urdu else f"🌱 **Agronomy Advisory:** The optimal sowing season for **{pretty_crop_name}** is **{sow_season}**."
 
         elif intent_harvest:
+            harv_season = None
             if PROLOG_READY:
                 harv_query = list(prolog.query(f"advise_harvest({safe_crop_name}, Season)"))
                 if harv_query:
-                    season = harv_query[0]['Season'].replace('_', ' ').title()
-                    reply = f"🧠 **Prolog Knowledge Base:** **{pretty_crop_name}** ki katai (harvest) ka behtareen waqt **{season}** hai." if is_urdu else f"🧠 **Prolog Knowledge Base:** The harvest timeframe for **{pretty_crop_name}** is **{season}**."
-            else: reply = "⚠️ Fallback: Harvest seasons ke liye Prolog install karein." if is_urdu else "⚠️ Fallback: Install Prolog to retrieve harvest seasons."
+                    harv_season = harv_query[0]['Season'].replace('_', ' ').title()
+            if not harv_season:
+                harv_season = crop_kb['harvest'].replace('_', ' ').title()
+            reply = f"🌾 **Agronomy Advisory:** **{pretty_crop_name}** ki katai (harvest) ka behtareen waqt **{harv_season}** hai." if is_urdu else f"🌾 **Agronomy Advisory:** The harvest timeframe for **{pretty_crop_name}** is **{harv_season}**."
 
         elif intent_water:
+            water_req = None
             if PROLOG_READY:
                 water_query = list(prolog.query(f"advise_water({safe_crop_name}, Req)"))
                 if water_query:
-                    req = water_query[0]['Req'].replace('_', ' ').title()
-                    reply = f"💧 **Prolog Knowledge Base:** **{pretty_crop_name}** ke liye pani ki zaroorat: **{req}**." if is_urdu else f"💧 **Prolog Knowledge Base:** Water requirement for **{pretty_crop_name}**: **{req}**."
-            else: reply = "⚠️ Fallback: Pani ki maloomat ke liye Prolog zaruri hai." if is_urdu else "⚠️ Fallback: Install Prolog for irrigation data."
+                    water_req = water_query[0]['Req'].replace('_', ' ').title()
+            if not water_req:
+                water_req = crop_kb['water'].replace('_', ' ').title()
+            reply = f"💧 **Agronomy Advisory:** **{pretty_crop_name}** ke liye pani ki zaroorat: **{water_req}**." if is_urdu else f"💧 **Agronomy Advisory:** Water requirement for **{pretty_crop_name}**: **{water_req}**."
 
         elif intent_fert:
+            fert_req = None
             if PROLOG_READY:
                 fert_query = list(prolog.query(f"advise_fert({safe_crop_name}, Req)"))
                 if fert_query:
-                    req = fert_query[0]['Req'].replace('_', ' ').title()
-                    reply = f"🌱 **Prolog Knowledge Base:** **{pretty_crop_name}** ke liye behtareen khaad: **{req}**." if is_urdu else f"🌱 **Prolog Knowledge Base:** Recommended fertilizer for **{pretty_crop_name}**: **{req}**."
-            else: reply = "⚠️ Fallback: Khaad ki maloomat ke liye Prolog zaruri hai." if is_urdu else "⚠️ Fallback: Install Prolog for fertilizer data."
+                    fert_req = fert_query[0]['Req'].replace('_', ' ').title()
+            if not fert_req:
+                fert_req = crop_kb['fert'].replace('_', ' ').title()
+            reply = f"🌱 **Agronomy Advisory:** **{pretty_crop_name}** ke liye behtareen khaad: **{fert_req}**." if is_urdu else f"🌱 **Agronomy Advisory:** Recommended fertilizer for **{pretty_crop_name}**: **{fert_req}**."
 
         elif intent_disease:
+            disease_risk = None
             if PROLOG_READY:
                 disease_query = list(prolog.query(f"advise_disease({safe_crop_name}, Risk)"))
                 if disease_query:
-                    risk = disease_query[0]['Risk'].replace('_', ' ').title()
-                    reply = f"🐛 **Prolog Knowledge Base:** **{pretty_crop_name}** ko in beemariyon/keeron ka khatra hai: **{risk}**. Waqt par spray karein." if is_urdu else f"🐛 **Prolog Knowledge Base:** Common pest/disease threats for **{pretty_crop_name}**: **{risk}**."
-            else: reply = "⚠️ Fallback: Beemari ki maloomat ke liye Prolog zaruri hai." if is_urdu else "⚠️ Fallback: Install Prolog for disease data."
+                    disease_risk = disease_query[0]['Risk'].replace('_', ' ').title()
+            if not disease_risk:
+                disease_risk = crop_kb['disease'].replace('_', ' ').title()
+            reply = f"🐛 **Agronomy Advisory:** **{pretty_crop_name}** ko in beemariyon/keeron ka khatra hai: **{disease_risk}**. Waqt par spray aur field scouting karein." if is_urdu else f"🐛 **Agronomy Advisory:** Common pest/disease threats for **{pretty_crop_name}**: **{disease_risk}**."
 
         elif intent_subsidy:
-            if PROLOG_READY:
-                sub_query = list(prolog.query("subsidy(Item, Status)"))
-                reply = "🧠 **Prolog Logic:** Hakoomat ki taraf se yeh subsidies dastiyab hain:\n" if is_urdu else "🧠 **Prolog Logic:** Current active agricultural subsidies:\n"
-                for item in sub_query:
-                    reply += f"- **{item['Item'].replace('_', ' ').title()}**: {item['Status'].replace('_', ' ').title()}\n"
-            else: reply = "⚠️ Fallback: Subsidies DAP, Solar, aur Seeds par dastiyab hain." if is_urdu else "⚠️ Fallback: Subsidies available for DAP, Solar, and Seeds."
+            if not is_urdu:
+                reply = "🏛️ **Agricultural Subsidies (Pakistan):**\n- **DAP Fertilizer**: Rs 1,000–1,500 subsidy on Kisan/Hari cards\n- **Solar Tubewells**: 80% government grant for small farmers (<12.5 acres)\n- **Certified Seeds**: Subsidized certified wheat & Bt cotton seeds\n"
+            else:
+                reply = "🏛️ **سرکاری زرعی سبسڈیز:**\n- **ڈی اے پی کھاد**: کسان کارڈ پر 1000 سے 1500 روپے سبسڈی\n- **سولر ٹیوب ویل**: چھوٹے کسانوں کے لیے 80 فیصد حکومتی امداد\n- **تصدیق شدہ بیج**: گندم اور کپاس کے بیجوں پر خصوصی رعایت\n"
                 
         else:
             if is_urdu: reply = "Main **keemat**, **mashwara**, **lagaun**, **katai**, **pani**, **khaad**, **beemari**, ya **madad** ke bare mein sawalat samajh sakta hoon."
@@ -398,25 +421,34 @@ with tab3:
     ))
     fig_res.add_hline(y=0, line_dash="dash", line_color="white")
     fig_res.update_layout(
-    title="Error Analysis (Residuals)",
-    xaxis_title="Year",
-    yaxis_title="Error (Actual - Predicted)",
-    template="plotly_dark"
-)
+        title="Error Analysis (Residuals)",
+        xaxis_title="Year",
+        yaxis_title="Error (Actual - Predicted)",
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=0, t=30, b=0)
+    )
+    fig_res.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)')
+    fig_res.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)')
     st.plotly_chart(fig_res, use_container_width=True)
+
     fig_dist = go.Figure()
     fig_dist.add_trace(go.Histogram(
-    x=crop_data['Price_Per_Maund'],
-    nbinsx=15,
-    marker_color='#2ecc71',
-    opacity=0.7
-))
+        x=crop_data['Price_Per_Maund'],
+        nbinsx=15,
+        marker_color='#2ecc71',
+        opacity=0.75
+    ))
     fig_dist.update_layout(
-    title="Historical Price Distribution",
-    xaxis_title="Price Range (PKR)",
-    yaxis_title="Frequency",
-    template="plotly_dark"
-)
+        title="Historical Price Distribution",
+        xaxis_title="Price Range (PKR)",
+        yaxis_title="Frequency",
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=0, r=0, t=30, b=0)
+    )
+    fig_dist.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)')
+    fig_dist.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)')
     st.plotly_chart(fig_dist, use_container_width=True)
     st.subheader(f"Underlying Market Data for {selected_crop.title()}")
     st.dataframe(crop_data[['Year', 'Item', 'Value', 'Price_Per_Maund']], use_container_width=True)
