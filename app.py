@@ -7,14 +7,20 @@ import plotly.graph_objects as go
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score
-import nltk
-from nltk.tokenize import word_tokenize
-
 try:
-    nltk.data.find('tokenizers/punkt_tab')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('punkt_tab')
+    import nltk
+    from nltk.tokenize import word_tokenize
+    try:
+        nltk.data.find('tokenizers/punkt_tab')
+    except (LookupError, Exception):
+        try:
+            nltk.download('punkt', quiet=True)
+            nltk.download('punkt_tab', quiet=True)
+        except Exception:
+            pass
+except Exception:
+    def word_tokenize(text):
+        return re.findall(r'\b\w+\b', str(text))
 
 st.set_page_config(page_title="Agri-Market Predictor", page_icon="🌱", layout="wide")
 
@@ -78,7 +84,7 @@ from streamlit_lottie import st_lottie
 @st.cache_data
 def load_lottieurl(url: str):
     try:
-        r = requests.get(url)
+        r = requests.get(url, timeout=1.5)
         if r.status_code != 200:
             return None
         return r.json()
@@ -183,8 +189,10 @@ with st.sidebar:
         
     st.markdown("## ⚙️ Market Settings")
 with st.sidebar:
-    crop_list = df['Item'].unique()
-    selected_crop = st.selectbox("Select a Crop/Vegetable:", crop_list)
+    crop_list = sorted(list(df['Item'].unique()))
+    default_crop = st.query_params.get("crop", "Wheat")
+    wheat_idx = crop_list.index(default_crop) if default_crop in crop_list else (crop_list.index('Wheat') if 'Wheat' in crop_list else 0)
+    selected_crop = st.selectbox("Select a Crop/Vegetable:", crop_list, index=wheat_idx)
     model_choice = st.radio("Prediction Algorithm:", ("Linear Regression", "Decision Tree"))
     st.markdown("---")
     st.info("Developed by:\n- Syeda Ummelaila Raza\n- Noor ul Hassan\n- Syed Abdullah")

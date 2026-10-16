@@ -100,13 +100,28 @@ Streamlit will print the local URL in the terminal, commonly `http://localhost:8
 - Dataset coverage, units, crop names, seasonality, and regional differences should be validated before using results for real decisions.
 - The current prototype does not establish a live connection to an official market-price feed.
 
+## Deployment
+
+### Option A: 1-Click Vercel Deployment (Static WebAssembly)
+This repository includes a standalone `index.html` powered by Stlite (Streamlit on WebAssembly). It runs completely client-side with Pyodide and requires zero backend server configuration.
+
+1. Go to [Vercel](https://vercel.com) and click **Add New Project**.
+2. Import this repository.
+3. Framework Preset: **Other** / Static HTML.
+4. Click **Deploy**. Vercel will serve `index.html` immediately.
+
+### Option B: Streamlit Community Cloud (Official Python Engine)
+1. Go to [share.streamlit.io](https://share.streamlit.io).
+2. Connect your GitHub account and select this repository.
+3. Set **Main file path** to `app.py`.
+4. Click **Deploy**. Streamlit Cloud will install `requirements.txt` and run the app with live WebSocket connectivity.
+
 ## Future Improvements
 
 - Add dataset validation, missing-value reporting, and clearer source/provenance information.
 - Evaluate forecasting models using time-aware train/test splits and appropriate metrics.
 - Improve Roman Urdu intent handling and add test coverage.
 - Separate agricultural rules from UI code and validate recommendations with domain experts.
-- Add requirements.txt, deployment instructions, and automated tests.
 
 ## Author
 
