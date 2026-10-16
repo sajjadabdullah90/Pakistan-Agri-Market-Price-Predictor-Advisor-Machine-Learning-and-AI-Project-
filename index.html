@@ -839,42 +839,92 @@
 
     .export-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 16px;
-    }
-    @media (max-width: 640px) {
-      .export-actions {
-        grid-template-columns: 1fr;
-      }
+      width: 100%;
+      margin-top: 16px;
     }
     .btn-export {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 14px 20px;
+      padding: 16px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 16px;
       color: var(--text-primary);
       text-decoration: none;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 0.88rem;
+      text-align: left;
+      font-family: var(--font-sans);
       box-shadow: var(--shadow-card);
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
     .btn-export:hover {
       border-color: var(--accent-green);
       transform: translateY(-2px);
       background: var(--bg-surface-elevated);
+      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.15), 0 0 0 1px var(--accent-green);
     }
     .btn-export-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+      min-width: 0;
+      flex: 1;
+      text-align: left;
     }
     .btn-export-icon {
-      font-size: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .btn-export-text {
+      min-width: 0;
+      flex: 1;
+      text-align: left;
+    }
+    .btn-export-title {
+      font-size: 0.925rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .btn-export-sub {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .btn-export-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-green-glow);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      flex-shrink: 0;
+      font-size: 16px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+    .btn-export:hover .btn-export-badge {
+      background: var(--accent-green);
+      color: #ffffff;
+      transform: translateY(2px);
     }
 
     /* Footer */
@@ -965,9 +1015,6 @@
           <a href="https://github.com/sajjadabdullah90/Pakistan-Agri-Market-Price-Predictor-Advisor-Machine-Learning-and-AI-Project-" target="_blank" class="btn-nav" rel="noreferrer">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
             GitHub Repo
-          </a>
-          <a href="https://portfolio-sajjadabdullah.vercel.app/" target="_blank" class="btn-nav btn-portfolio" rel="noreferrer">
-            Portfolio ↗
           </a>
         </div>
       </div>
@@ -1289,26 +1336,26 @@
 
           <!-- Download Action Buttons -->
           <div class="export-actions">
-            <button class="btn-export" id="btn-export-forecast">
+            <button class="btn-export" id="btn-export-forecast" type="button" title="Download 3-Year Projected CSV">
               <div class="btn-export-left">
-                <span class="btn-export-icon">📈</span>
-                <div>
-                  <div style="font-weight: 700;">Download 3-Year Forecast CSV</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Includes projected years, forecast prices, and algorithm tag</div>
+                <div class="btn-export-icon">📈</div>
+                <div class="btn-export-text">
+                  <div class="btn-export-title">Download 3-Year Forecast CSV</div>
+                  <div class="btn-export-sub">Projected years, predicted prices, and model telemetry</div>
                 </div>
               </div>
-              <span style="font-size: 18px;">⬇</span>
+              <span class="btn-export-badge">⬇</span>
             </button>
 
-            <button class="btn-export" id="btn-export-raw">
+            <button class="btn-export" id="btn-export-raw" type="button" title="Download Historical FAO Dataset CSV">
               <div class="btn-export-left">
-                <span class="btn-export-icon">📊</span>
-                <div>
-                  <div style="font-weight: 700;">Download Historical Data CSV</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Complete FAO series with 40kg Maund conversions</div>
+                <div class="btn-export-icon">📊</div>
+                <div class="btn-export-text">
+                  <div class="btn-export-title">Download Historical Data CSV</div>
+                  <div class="btn-export-sub">Complete 55-year FAO time-series with 40kg Maund conversions</div>
                 </div>
               </div>
-              <span style="font-size: 18px;">⬇</span>
+              <span class="btn-export-badge">⬇</span>
             </button>
           </div>
         </div>
@@ -1323,8 +1370,7 @@
         </div>
         <div class="footer-links">
           <span>Engineered by <strong>Syed Abdullah</strong> &amp; Team</span>
-          <a href="https://portfolio-sajjadabdullah.vercel.app/" target="_blank">Abdullah's Portfolio ↗</a>
-          <a href="https://github.com/sajjadabdullah90/Pakistan-Agri-Market-Price-Predictor-Advisor-Machine-Learning-and-AI-Project-" target="_blank">Source Code</a>
+          <a href="https://github.com/sajjadabdullah90/Pakistan-Agri-Market-Price-Predictor-Advisor-Machine-Learning-and-AI-Project-" target="_blank" rel="noreferrer">GitHub Repository</a>
         </div>
       </div>
     </footer>
